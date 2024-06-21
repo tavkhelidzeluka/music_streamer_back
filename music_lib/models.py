@@ -8,11 +8,17 @@ class Artist(models.Model):
     bio = models.TextField()
     is_verified = models.BooleanField(default=False)
 
+    def __str__(self) -> str:
+        return self.name
+
 
 class Album(models.Model):
     artist = models.ForeignKey(Artist, on_delete=models.CASCADE)
     title = models.CharField(max_length=255)
     cover = models.ImageField()
+
+    def __str__(self) -> str:
+        return self.title
 
 
 class Song(models.Model):
@@ -22,4 +28,7 @@ class Song(models.Model):
     name = models.CharField(max_length=255)
     file = models.FileField()
     is_available = models.BooleanField(default=True)
+
+    def __str__(self) -> str:
+        return self.name
 
