@@ -15,7 +15,7 @@ class Artist(models.Model):
 class Album(models.Model):
     artist = models.ForeignKey(Artist, on_delete=models.CASCADE)
     title = models.CharField(max_length=255)
-    cover = models.ImageField()
+    cover = models.ImageField(upload_to=lambda instance, filename: f'album/{instance.title}/{filename}')
 
     def __str__(self) -> str:
         return self.title
@@ -26,7 +26,7 @@ class Song(models.Model):
     album = models.ForeignKey(Album, on_delete=models.CASCADE)
 
     name = models.CharField(max_length=255)
-    file = models.FileField()
+    file = models.FileField(upload_to=lambda instance, filename: f'album/{instance.album.title}/songs/{filename}')
     is_available = models.BooleanField(default=True)
 
     def __str__(self) -> str:
