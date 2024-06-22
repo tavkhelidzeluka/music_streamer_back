@@ -24,3 +24,18 @@ class SongSerializer(serializers.ModelSerializer):
     class Meta:
         model = Song
         fields = '__all__'
+
+
+class SongCreateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Song
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        request = self.context.get('request')
+        # if not request.user.is_superuser:
+        self.fields['album'].queryset = Album.objects.filter(artist__user=request.user)
+        self.fields['artists'].child_relation.queryset = Artist.objects.filter(user=request.user)
+

@@ -1,11 +1,21 @@
 from rest_framework.viewsets import ModelViewSet
 
 from music_lib.models import Song, Artist, Album
-from music_lib.serializers import SongSerializer, ArtistSerializer, AlbumSerializer
+from music_lib.serializers import SongSerializer, SongCreateSerializer, ArtistSerializer, AlbumSerializer
 
 
-class SongAPIViewSet(ModelViewSet):
-    serializer_class = SongSerializer
+class MultiSerializersModelViewSet(ModelViewSet):
+    serializer_classes = {}
+
+    def get_serializer_class(self):
+        return self.serializer_classes.get(self.action) or self.serializer_classes['default']
+
+
+class SongAPIViewSet(MultiSerializersModelViewSet):
+    serializer_classes = {
+        'create': SongCreateSerializer,
+        'default': SongSerializer
+    }
     queryset = Song.objects.all()
 
 
