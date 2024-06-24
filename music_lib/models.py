@@ -43,4 +43,8 @@ class Song(models.Model):
         return self.name
 
 
+class Playlist(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    songs = models.ManyToManyField(Song, blank=True)
 
+    name = models.CharField(max_length=255)
