@@ -1,6 +1,7 @@
 import os
 import re
 
+import rest_framework.permissions
 from django.http import FileResponse, Http404, HttpResponse
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
@@ -75,10 +76,22 @@ class AlbumAPIViewSet(ModelViewSet):
 
 
 class PlaylistAPIViewSet(ModelViewSet):
+    permission_classes = [rest_framework.permissions.IsAuthenticated]
     serializer_class = PlaylistSerializer
 
     def get_queryset(self):
-        return Playlist.objects.all()
+        return Playlist.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+    @action(detail=True, methods=["post"])
+    def add_song(self, request: Request, pk: int) -> Response:
+        playlist = get_object_or_404(Playlist, pk=pk)
+        song = get_object_or_404(Song, pk=request.POST.get('song_id'))
+
+        if playlist.songs.filter(song=song).exists():
+            raise Http404()
+
+        playlist.songs.add(song)
+        return Response(data={"data": "ok"})
