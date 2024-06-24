@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from music_lib.models import Song, Artist, Album
+from music_lib.models import Song, Artist, Album, Playlist
 
 
 class ArtistSerializer(serializers.ModelSerializer):
@@ -46,3 +46,12 @@ class SongCreateSerializer(serializers.ModelSerializer):
         # if not request.user.is_superuser:
         self.fields['album'].queryset = Album.objects.filter(artist__user=request.user)
         self.fields['artists'].child_relation.queryset = Artist.objects.filter(user=request.user)
+
+
+class PlaylistSerializer(serializers.ModelSerializer):
+    songs = SongSerializer(many=True, read_only=True)
+    user = serializers.PrimaryKeyRelatedField(read_only=True)
+
+    class Meta:
+        model = Playlist
+        fields = '__all__'

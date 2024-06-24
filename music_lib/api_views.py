@@ -8,8 +8,9 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
-from music_lib.models import Song, Artist, Album
-from music_lib.serializers import SongSerializer, SongCreateSerializer, ArtistSerializer, AlbumSerializer
+from music_lib.models import Song, Artist, Album, Playlist
+from music_lib.serializers import SongSerializer, SongCreateSerializer, ArtistSerializer, AlbumSerializer, \
+    PlaylistSerializer
 
 
 class MultiSerializersModelViewSet(ModelViewSet):
@@ -73,3 +74,11 @@ class AlbumAPIViewSet(ModelViewSet):
     queryset = Album.objects.all()
 
 
+class PlaylistAPIViewSet(ModelViewSet):
+    serializer_class = PlaylistSerializer
+
+    def get_queryset(self):
+        return Playlist.objects.all()
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
