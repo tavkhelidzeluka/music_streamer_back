@@ -88,9 +88,9 @@ class PlaylistAPIViewSet(ModelViewSet):
     @action(detail=True, methods=["post"])
     def add_song(self, request: Request, pk: int) -> Response:
         playlist = get_object_or_404(Playlist, pk=pk)
-        song = get_object_or_404(Song, pk=request.POST.get('song_id'))
+        song = get_object_or_404(Song, pk=int(request.data.get('song_id', -1)))
 
-        if playlist.songs.filter(song=song).exists():
+        if playlist.songs.filter(pk=song.pk).exists():
             raise Http404()
 
         playlist.songs.add(song)

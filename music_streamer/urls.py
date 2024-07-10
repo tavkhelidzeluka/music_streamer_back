@@ -18,14 +18,22 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
+from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenVerifyView
+from users.views import CustomTokenRefreshView, CustomTokenObtainPairView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('music_lib.urls')),
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
+    path('api/token/', CustomTokenObtainPairView.as_view(
+        permission_classes=[AllowAny]
+    ), name='token_obtain_pair'),
+    path('api/token/refresh/', CustomTokenRefreshView.as_view(
+        permission_classes=[AllowAny]
+    ), name='token_refresh'),
+    path('api/token/verify/', TokenVerifyView.as_view(
+        permission_classes=[AllowAny]
+    ), name='token_verify'),
 ]
 
 if settings.DEBUG:
