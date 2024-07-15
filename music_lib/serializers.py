@@ -26,13 +26,21 @@ class AlbumSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class SongAlbumSerializer(serializers.ModelSerializer):
+    artist = ArtistSerializer(read_only=True)
+
+    class Meta:
+        model = Album
+        fields = '__all__'
+
+
 class SongSerializer(serializers.ModelSerializer):
-    album = AlbumSerializer(read_only=True)
+    album = SongAlbumSerializer(read_only=True)
     artists = ArtistSerializer(many=True, read_only=True)
 
     class Meta:
         model = Song
-        fields = '__all__'
+        exclude = ['file']
 
 
 class SongCreateSerializer(serializers.ModelSerializer):

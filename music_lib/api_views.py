@@ -3,12 +3,14 @@ import re
 
 import rest_framework.permissions
 from django.http import FileResponse, Http404, HttpResponse
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
+from music_lib.filters import SongFilter
 from music_lib.models import Song, Artist, Album, Playlist
 from music_lib.serializers import SongSerializer, SongCreateSerializer, ArtistSerializer, AlbumSerializer, \
     PlaylistSerializer
@@ -22,11 +24,14 @@ class MultiSerializersModelViewSet(ModelViewSet):
 
 
 class SongAPIViewSet(MultiSerializersModelViewSet):
+    queryset = Song.objects.all()
     serializer_classes = {
         'create': SongCreateSerializer,
         'default': SongSerializer
     }
-    queryset = Song.objects.all()
+
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = SongFilter
 
     @action(detail=True, methods=['get'])
     def stream(self, request, pk=None):
