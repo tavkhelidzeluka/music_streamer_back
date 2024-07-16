@@ -63,3 +63,40 @@ class PlaylistSerializer(serializers.ModelSerializer):
     class Meta:
         model = Playlist
         fields = '__all__'
+
+
+class PlaylistBareSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Playlist
+        fields = ['name']
+
+
+class PlaylistCreateSerializer(serializers.ModelSerializer):
+    songs = serializers.PrimaryKeyRelatedField(many=True, queryset=Song.objects.all())
+
+    class Meta:
+        model = Playlist
+        fields = ['id', 'name', 'songs']
+
+    def create(self, validated_data):
+        songs = validated_data.pop('songs')
+        playlist = Playlist.objects.create(**validated_data)
+        playlist.songs.add(*songs)
+        return playlist
+
+
+class UpdatePlaylistsSerializer(serializers.ModelSerializer):
+    ids = serializers.ListField(
+        child=serializers.IntegerField(),
+        allow_empty=False
+    )
+    song = serializers.PrimaryKeyRelatedField(queryset=Song.objects.all())
+
+    class Meta:
+        model = Playlist
+        fields = ['ids', 'song']
+
+    def validate_ids(self, value):
+        if not all(isinstance(id, int) for id in value):
+            raise serializers.ValidationError("All IDs must be integers.")
+        return value

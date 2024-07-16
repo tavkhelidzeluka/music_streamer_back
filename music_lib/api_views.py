@@ -6,6 +6,7 @@ from django.http import FileResponse, Http404, HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
@@ -13,7 +14,11 @@ from rest_framework.viewsets import ModelViewSet
 from music_lib.filters import SongFilter
 from music_lib.models import Song, Artist, Album, Playlist
 from music_lib.serializers import SongSerializer, SongCreateSerializer, ArtistSerializer, AlbumSerializer, \
-    PlaylistSerializer
+    PlaylistSerializer, PlaylistBareSerializer, PlaylistCreateSerializer, UpdatePlaylistsSerializer
+
+
+class SongPaginationClass(PageNumberPagination):
+    page_size = 20
 
 
 class MultiSerializersModelViewSet(ModelViewSet):
@@ -32,6 +37,7 @@ class SongAPIViewSet(MultiSerializersModelViewSet):
 
     filter_backends = [DjangoFilterBackend]
     filterset_class = SongFilter
+    pagination_class = SongPaginationClass
 
     @action(detail=True, methods=['get'])
     def stream(self, request, pk=None):
@@ -80,9 +86,13 @@ class AlbumAPIViewSet(ModelViewSet):
     queryset = Album.objects.all()
 
 
-class PlaylistAPIViewSet(ModelViewSet):
+class PlaylistAPIViewSet(MultiSerializersModelViewSet):
     permission_classes = [rest_framework.permissions.IsAuthenticated]
-    serializer_class = PlaylistSerializer
+    serializer_classes = {
+        'update_playlists': UpdatePlaylistsSerializer,
+        'create': PlaylistCreateSerializer,
+        'default': PlaylistSerializer
+    }
 
     def get_queryset(self):
         return Playlist.objects.filter(user=self.request.user)
@@ -100,3 +110,29 @@ class PlaylistAPIViewSet(ModelViewSet):
 
         playlist.songs.add(song)
         return Response(data={"data": "ok"})
+
+    @action(detail=False)
+    def names(self, request: Request) -> Response:
+        serializer = PlaylistBareSerializer(self.get_queryset(), many=True)
+
+        return Response(
+            data=serializer.data
+        )
+
+    @action(detail=False, methods=["post"])
+    def update_playlists(self, request: Request) -> Response:
+        playlists = Playlist.objects.filter(id__in=request.data.get('ids', []))
+        song = get_object_or_404(Song, pk=int(request.data.get('song', -1)))
+
+        for playlist in playlists:
+            if playlist.songs.filter(id=song.id):
+                playlist.songs.remove(song)
+            else:
+                playlist.songs.add(song)
+
+        return Response(
+            data={
+                "message": "ok"
+            }
+        )
+
