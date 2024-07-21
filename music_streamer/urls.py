@@ -19,8 +19,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.permissions import AllowAny
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenVerifyView
-from users.views import CustomTokenRefreshView, CustomTokenObtainPairView
+from users.views import CustomTokenRefreshView, CustomTokenObtainPairView, TokenClearView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -31,9 +30,9 @@ urlpatterns = [
     path('api/token/refresh/', CustomTokenRefreshView.as_view(
         permission_classes=[AllowAny]
     ), name='token_refresh'),
-    path('api/token/verify/', TokenVerifyView.as_view(
+    path('api/token/clear/', TokenClearView.as_view(
         permission_classes=[AllowAny]
-    ), name='token_verify'),
+    ), name='token_clear'),
 ]
 
 if settings.DEBUG:

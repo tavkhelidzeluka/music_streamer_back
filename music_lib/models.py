@@ -12,6 +12,10 @@ def generate_cover_image_path(instance: 'Album', filename: str) -> str:
     return f'album/{instance.title}/{filename}'
 
 
+def upload_playlist_cover_to(instance: 'Playlist', filename: str) -> str:
+    return f'users/playlists/{instance.name}/{filename}'
+
+
 class Artist(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
@@ -47,4 +51,5 @@ class Playlist(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     songs = models.ManyToManyField(Song, blank=True)
 
+    cover = models.ImageField(upload_to=upload_playlist_cover_to, null=True, blank=True)
     name = models.CharField(max_length=255)

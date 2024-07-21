@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from rest_framework import status
+from rest_framework.views import APIView
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
@@ -51,4 +52,13 @@ class CustomTokenRefreshView(TokenRefreshView):
             samesite='Lax'
         )
         res.data = {"message": "Token refreshed"}
+        return res
+
+
+class TokenClearView(APIView):
+    def post(self, request: Request) -> Response:
+        res = Response()
+        res.delete_cookie('access_token')
+        res.delete_cookie('refresh_token')
+        res.data = {"message": "Logged out"}
         return res

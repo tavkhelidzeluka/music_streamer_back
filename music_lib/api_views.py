@@ -4,6 +4,7 @@ import re
 import rest_framework.permissions
 from django.http import FileResponse, Http404, HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
@@ -40,13 +41,21 @@ class SongAPIViewSet(MultiSerializersModelViewSet):
     pagination_class = SongPaginationClass
 
     @action(detail=True, methods=['get'])
-    def stream(self, request, pk=None):
+    def stream(self, request: Request, pk: int) -> Response:
         # Assuming 'pk' is the filename or part of the path
         song = get_object_or_404(Song, pk=pk)
         file_path = song.file.path
 
         if not os.path.exists(file_path):
             raise Http404("Audio file does not exist.")
+
+        if not song.is_available:
+            return Response(
+                data={
+                  'message': 'Not available'
+                },
+                status=status.HTTP_416_REQUESTED_RANGE_NOT_SATISFIABLE
+            )
 
         range_header = request.META.get('HTTP_RANGE', None)
         file_size = os.path.getsize(file_path)
