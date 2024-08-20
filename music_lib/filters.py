@@ -3,7 +3,7 @@ from django_filters import rest_framework as filters
 
 
 class SongFilter(filters.FilterSet):
-    search = filters.CharFilter(method='filter_name_or_artist')
+    search = filters.CharFilter(method='filter_name_or_artist', label='Search by name or artist')
 
     def filter_name_or_artist(self, queryset, name, value):
         return queryset.filter(

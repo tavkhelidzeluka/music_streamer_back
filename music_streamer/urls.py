@@ -19,11 +19,14 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.permissions import AllowAny
+
 from users.views import CustomTokenRefreshView, CustomTokenObtainPairView, TokenClearView
+from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('music_lib.urls')),
+    path('api/', include('music_lib.urls')),
     path('api/token/', CustomTokenObtainPairView.as_view(
         permission_classes=[AllowAny]
     ), name='token_obtain_pair'),
@@ -33,6 +36,9 @@ urlpatterns = [
     path('api/token/clear/', TokenClearView.as_view(
         permission_classes=[AllowAny]
     ), name='token_clear'),
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 ]
 
 if settings.DEBUG:

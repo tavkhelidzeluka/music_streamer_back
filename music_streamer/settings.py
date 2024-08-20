@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework_simplejwt',
     'django_filters',
+    'drf_spectacular',
 
     # custom
     'music_lib',
@@ -156,7 +157,8 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend'
-    ]
+    ],
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
@@ -166,3 +168,12 @@ CORS_ALLOW_HEADERS = list(default_headers) + [
     'withCredentials',
 ]
 CORS_ALLOW_CREDENTIALS = True
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Music Streamer API',
+    'DESCRIPTION': 'API for music streaming service',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'OPERATION_ID_FACTORY': 'drf_spectacular.openapi.PlainNamingConvention',
+}
+

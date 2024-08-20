@@ -11,6 +11,7 @@ class ArtistSerializer(serializers.ModelSerializer):
 
 class AlbumSongSerializer(serializers.ModelSerializer):
     artists = ArtistSerializer(many=True, read_only=True)
+    is_liked = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = Song
@@ -37,6 +38,7 @@ class SongAlbumSerializer(serializers.ModelSerializer):
 class SongSerializer(serializers.ModelSerializer):
     album = SongAlbumSerializer(read_only=True)
     artists = ArtistSerializer(many=True, read_only=True)
+    is_liked = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = Song
@@ -54,6 +56,12 @@ class SongCreateSerializer(serializers.ModelSerializer):
         # if not request.user.is_superuser:
         self.fields['album'].queryset = Album.objects.filter(artist__user=request.user)
         self.fields['artists'].child_relation.queryset = Artist.objects.filter(user=request.user)
+
+
+class SongNameFindSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Song
+        fields = ['name']
 
 
 class PlaylistSerializer(serializers.ModelSerializer):
