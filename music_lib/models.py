@@ -15,10 +15,18 @@ def generate_cover_image_path(instance: 'Album', filename: str) -> str:
 def upload_playlist_cover_to(instance: 'Playlist', filename: str) -> str:
     return f'users/playlists/{instance.name}/{filename}'
 
+def upload_artist_thumbnail_to(instance: 'Artist', filename: str) -> str:
+    return f'artists/{instance.name}/thumbnail/{filename}'
+
+def upload_artist_avatar_to(instance: 'Artist', filename: str) -> str:
+    return f'artists/{instance.name}/avatar/{filename}'
+
 
 class Artist(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
+    avatar = models.ImageField(upload_to=upload_artist_avatar_to, null=True, blank=True)
+    thumbnail = models.ImageField(upload_to=upload_artist_thumbnail_to, null=True, blank=True)
     bio = models.TextField()
     is_verified = models.BooleanField(default=False)
 
