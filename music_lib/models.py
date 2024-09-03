@@ -1,7 +1,6 @@
-from pathlib import Path
-
 from django.conf import settings
 from django.db import models
+from django.utils.functional import cached_property
 
 
 def generate_song_file_path(instance: 'Song', filename: str) -> str:
@@ -50,6 +49,12 @@ class Song(models.Model):
     name = models.CharField(max_length=255)
     file = models.FileField(upload_to=generate_song_file_path)
     is_available = models.BooleanField(default=True)
+    duration = models.DecimalField(default=0, max_digits=10, decimal_places=2)
+    play_count = models.PositiveIntegerField(default=0)
+
+    @cached_property
+    def like_count(self) -> int:
+        return self.liked_by.count()
 
     def __str__(self) -> str:
         return self.name
@@ -61,3 +66,10 @@ class Playlist(models.Model):
 
     cover = models.ImageField(upload_to=upload_playlist_cover_to, null=True, blank=True)
     name = models.CharField(max_length=255)
+
+
+class PlayEvent(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    song = models.ForeignKey(Song, on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    duration = models.PositiveIntegerField(default=0)

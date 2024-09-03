@@ -1,3 +1,6 @@
+from pathlib import Path
+
+import audioread
 from rest_framework import serializers
 
 from music_lib.models import Song, Artist, Album, Playlist
@@ -39,6 +42,7 @@ class SongSerializer(serializers.ModelSerializer):
     album = SongAlbumSerializer(read_only=True)
     artists = ArtistSerializer(many=True, read_only=True)
     is_liked = serializers.BooleanField(read_only=True)
+    like_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Song
@@ -48,14 +52,13 @@ class SongSerializer(serializers.ModelSerializer):
 class SongCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Song
-        fields = '__all__'
+        exclude = ['play_count', 'duration']
 
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-        request = self.context.get('request')
-        # if not request.user.is_superuser:
-        self.fields['album'].queryset = Album.objects.filter(artist__user=request.user)
-        self.fields['artists'].child_relation.queryset = Artist.objects.filter(user=request.user)
+    def create(self, validated_data):
+        with audioread.audio_open(validated_data['file'].temporary_file_path()) as f:
+            duration = f.duration
+            validated_data['duration'] = duration
+        return super().create(validated_data)
 
 
 class SongNameFindSerializer(serializers.ModelSerializer):
