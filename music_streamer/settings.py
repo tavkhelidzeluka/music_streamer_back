@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
+import os
 from datetime import timedelta
 from pathlib import Path
 
@@ -21,12 +22,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-45z=u^*vx6^)4a&1*g&ks3gu%r3_-0rv0ao_uj$d*&67bwmqq9'
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-45z=u^*vx6^)4a&1*g&ks3gu%r3_-0rv0ao_uj$d*&67bwmqq9')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DJANGO_DEBUG', 'true').lower() == 'true'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    os.environ.get('DJANGO_ALLOWED_HOSTS', '*').split(',')
+]
 
 # CORS_ALLOWED_ORIGINS = [
 #     "http://localhost:3000",
